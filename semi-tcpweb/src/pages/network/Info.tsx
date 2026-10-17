@@ -151,6 +151,10 @@ const NetworkInfo: React.FC = () => {
     tempMonitor: { enabled: false, interval: 5 },
   });
   const [fanMonitoring, setFanMonitoring] = useState(false);
+  const fanModeRef = useRef({ enabled: false, interval: 5 });
+  const previousTempRefresh = useRef<{ enabled: boolean; interval: number } | null>(null);
+  const autoRef = useRef(auto);
+  autoRef.current = auto;
   const timers = useRef<Record<string, number>>({});
   const activeCidRef = useRef<number | null>(null);
   const pdcpOnRef = useRef(false);
@@ -439,12 +443,7 @@ const NetworkInfo: React.FC = () => {
     setLoading(true);
     enqueue(async () => {
       const fan = await fetchFan();
-      if (fan?.enabled) {
-        setFanMonitoring(true);
-        setAutoRefresh('tempMonitor', true, fan.interval);
-      } else {
-        setFanMonitoring(false);
-      }
+      if (fan) syncFanMonitoring(fan.enabled, fan.interval);
       await getPSReg();
       await updateSignal();
       await getOperator();
@@ -536,6 +535,7 @@ const NetworkInfo: React.FC = () => {
   }, []);
 
   const setAutoRefresh = (key: keyof typeof auto, enabled: boolean, interval: number) => {
+    if (key === 'tempMonitor' && fanModeRef.current.enabled && !enabled) return;
     if (timers.current[key]) {
       window.clearInterval(timers.current[key]);
       delete timers.current[key];
@@ -563,6 +563,30 @@ const NetworkInfo: React.FC = () => {
     tick();
     timers.current[key] = window.setInterval(tick, interval * 1000);
   };
+
+  const syncFanMonitoring = (enabled: boolean, interval: number) => {
+    const previous = fanModeRef.current;
+    if (previous.enabled === enabled && (!enabled || previous.interval === interval)) return;
+    if (enabled && !previous.enabled) previousTempRefresh.current = autoRef.current.tempMonitor;
+    fanModeRef.current = { enabled, interval };
+    setFanMonitoring(enabled);
+    if (enabled) {
+      setAutoRefresh('tempMonitor', true, interval);
+    } else {
+      const restore = previousTempRefresh.current || { enabled: false, interval: 5 };
+      previousTempRefresh.current = null;
+      setAutoRefresh('tempMonitor', restore.enabled, restore.interval);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void fetchFan().then((fan) => {
+        if (fan) syncFanMonitoring(fan.enabled, fan.interval);
+      });
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const confirmPdcp = async () => {
     const res = await at().setPDCPDataReport(true, tempInterval);
