@@ -38,6 +38,7 @@ import {
 import { AutoRefresh, Kv, Metric, PageCard, Panel, SectionHeader, TwoCol } from '@/ui/widgets';
 import { QualityBar, RingGauge, Sparkline } from '@/ui/charts';
 import { Diagnostics } from './Diagnostics';
+import { fetchFan } from '@/modem/fan';
 import {
   carrierSignalFor,
   parseCascellAll,
@@ -149,6 +150,7 @@ const NetworkInfo: React.FC = () => {
     flowStats: { enabled: false, interval: 5 },
     tempMonitor: { enabled: false, interval: 5 },
   });
+  const [fanMonitoring, setFanMonitoring] = useState(false);
   const timers = useRef<Record<string, number>>({});
   const activeCidRef = useRef<number | null>(null);
   const pdcpOnRef = useRef(false);
@@ -436,6 +438,13 @@ const NetworkInfo: React.FC = () => {
   const loadAll = () => {
     setLoading(true);
     enqueue(async () => {
+      const fan = await fetchFan();
+      if (fan?.enabled) {
+        setFanMonitoring(true);
+        setAutoRefresh('tempMonitor', true, fan.interval);
+      } else {
+        setFanMonitoring(false);
+      }
       await getPSReg();
       await updateSignal();
       await getOperator();
@@ -996,8 +1005,8 @@ const NetworkInfo: React.FC = () => {
 
         <SectionHeader
           title="模组温度"
-          desc="关键芯片实时温度"
-          extra={<AutoRefresh enabled={auto.tempMonitor.enabled} interval={auto.tempMonitor.interval} onChange={(e, i) => setAutoRefresh('tempMonitor', e, i)} />}
+          desc={fanMonitoring ? '关键芯片实时温度 · 与风扇控制共享后台采样' : '关键芯片实时温度'}
+          extra={<AutoRefresh enabled={auto.tempMonitor.enabled} interval={auto.tempMonitor.interval} disabled={fanMonitoring} onChange={(e, i) => setAutoRefresh('tempMonitor', e, i)} />}
         />
         <div className="temp-grid">
           {[

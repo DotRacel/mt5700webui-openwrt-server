@@ -125,10 +125,11 @@ export const Kv: React.FC<{
 export const AutoRefresh: React.FC<{
   enabled: boolean;
   interval: number;
+  disabled?: boolean;
   onChange: (enabled: boolean, interval: number) => void;
-}> = ({ enabled, interval, onChange }) => (
+}> = ({ enabled, interval, disabled = false, onChange }) => (
   <Space>
-    <Switch checked={enabled} onChange={(value) => onChange(value, interval)} />
+    <Switch checked={enabled} disabled={disabled} onChange={(value) => onChange(value, interval)} />
     <Typography.Text size="small" type="tertiary">
       自动刷新
     </Typography.Text>
@@ -138,6 +139,7 @@ export const AutoRefresh: React.FC<{
           size="small"
           min={1}
           max={60}
+          disabled={disabled}
           value={interval}
           onChange={(value) => onChange(true, Number(value) || 5)}
           style={{ width: 72 }}

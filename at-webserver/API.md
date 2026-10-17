@@ -1,5 +1,11 @@
 # AT WebServer API 文档
 
+## 风扇温度监测（Go 后端）
+
+WebSocket 使用现有的 AT 命令通道和认证。`AT+FAN?` 返回 `+FAN: {"enabled":false,"interval":5,"curve":[{"temperature":35,"speed":25},...],"status":{...}}\r\nOK`。`AT+FAN=<JSON>` 保存 `enabled`、`interval`（2–60 秒）和 `curve`（2–12 个递增节点），脚本路径仅从本机 UCI 的 `fan_script` 读取，不能经 WebSocket 修改。
+
+功能启用后，服务端每 `fan_interval` 秒发送一次 `AT^CHIPTEMP?`，取所有传感器的最高温度计算转速。WebUI 即使再次发送 `AT^CHIPTEMP?`，服务端也会返回同一采样窗口内的结果；并发请求共用一次查询。采样与调速在 WebUI 关闭后继续运行。
+
 ## WebSocket 配置信息 API
 
 ### 端点

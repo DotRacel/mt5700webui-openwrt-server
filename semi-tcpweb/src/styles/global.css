@@ -905,6 +905,48 @@ textarea[readonly],
   }
 }
 
+.fan-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.fan-status > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--semi-color-fill-0);
+}
+
+.fan-status strong {
+  font-size: 24px;
+  color: var(--semi-color-text-0);
+}
+
+.fan-status span { color: var(--semi-color-text-2); }
+.fan-controls { margin-bottom: 16px; flex-wrap: wrap; }
+.fan-curve-wrap { width: 100%; }
+.fan-curve { width: 100%; max-height: 360px; touch-action: none; }
+.fan-curve text { fill: var(--semi-color-text-2); font-size: 12px; }
+.fan-grid-line { stroke: var(--semi-color-border); stroke-width: 1; }
+.fan-curve-line { stroke: var(--semi-color-primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.fan-current-line { stroke: var(--semi-color-warning); stroke-width: 2; stroke-dasharray: 5 5; }
+.fan-current-point { fill: var(--semi-color-warning); stroke: var(--semi-color-bg-0); stroke-width: 2; }
+.fan-node { fill: var(--semi-color-primary); stroke: var(--semi-color-bg-0); stroke-width: 3; cursor: grab; }
+.fan-node:focus { outline: 2px solid var(--semi-color-focus-border); }
+.fan-node:active { cursor: grabbing; }
+.fan-point-list { display: grid; gap: 8px; margin-top: 18px; }
+.fan-point-row { display: grid; grid-template-columns: 80px minmax(100px, 1fr) minmax(100px, 1fr) auto; gap: 10px; align-items: center; }
+.fan-actions { margin-top: 18px; }
+
+@media (max-width: 600px) {
+  .fan-status { grid-template-columns: 1fr; }
+  .fan-point-row { grid-template-columns: 1fr 1fr; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sparkline-dot {
     animation: none;

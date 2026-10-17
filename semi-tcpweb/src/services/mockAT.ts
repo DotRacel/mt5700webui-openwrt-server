@@ -1,5 +1,16 @@
 export const MOCK_SMS_CACHE_KEY = 'sms_sent_messages_cache_mock';
 
+let mockFan = {
+  enabled: false,
+  interval: 5,
+  curve: [
+    { temperature: 35, speed: 25 },
+    { temperature: 50, speed: 40 },
+    { temperature: 65, speed: 70 },
+    { temperature: 75, speed: 100 },
+  ],
+};
+
 export interface MockCommandResponse {
   success: boolean;
   data?: string;
@@ -515,6 +526,13 @@ export const resolveMockATCommand = (
     return ok(`+SCHED: ${JSON.stringify(createMockSchedule())}\r\nOK`);
   }
   if (commandLine.startsWith('AT+SCHED=')) return ok('+SCHED: OK\r\nOK');
+  if (commandLine === 'AT+FAN?') return ok(`+FAN: ${JSON.stringify({ ...mockFan, status: { sample: { raw: '^CHIPTEMP: 432,445,451,398,401,407,428,431,439,442,419,423\\r\\nOK', sensors: [43.2, 44.5, 45.1, 39.8, 40.1, 40.7, 42.8, 43.1, 43.9, 44.2, 41.9, 42.3], temperature: 45.1, sampled_at: new Date().toISOString() }, speed: mockFan.enabled ? 35 : undefined, script: '/etc/at-webserver/fan-control.sh', script_ok: true } })}\r\nOK`);
+  if (commandLine.startsWith('AT+FAN=')) {
+    try {
+      mockFan = JSON.parse(commandLine.slice('AT+FAN='.length));
+      return ok('+FAN: OK\r\nOK');
+    } catch { return { success: false, error: '无效的风扇配置' }; }
+  }
 
   if (commandLine === 'AT^HCSQ?') {
     return ok(

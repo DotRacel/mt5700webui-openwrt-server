@@ -18,6 +18,7 @@ MT5700M-CN 5G 模组的 OpenWrt Web 管理界面：Go 单二进制后端（`at-w
 - **AT 调试终端**：结构化收发日志、常用命令快捷键、自定义命令收藏
 - **拨号管理**：APN/认证方式、拨号模式、PDP 上下文增删与激活、DMZ、网口模式
 - **模组管理**：5G 接入模式（SA/NSA/DSS）、发射功率、芯片温度监控、模组升级
+- **风扇温度曲线**：服务端持续采样并与首页共享模组温度，拖动曲线节点设置转速，通过本机 Shell 脚本控制风扇
 - 暗色模式、移动端自适应布局、WebSocket 密钥鉴权
 
 | 暗色模式 | 移动端 |
@@ -67,6 +68,12 @@ apk add --allow-untrusted ./at-webserver-*_<架构>.apk ./luci-app-at-webserver-
 | x86 软路由 | `x86_64` |
 
 安装后访问 `http://路由器IP/5700/`，模组连接方式（串口 / tcp）与 WebSocket 密钥可在 LuCI「服务 → AT WebServer」中配置。
+
+### 风扇控制
+
+在 LuCI「服务 → AT WebServer」填写 `fan_script` 的本机绝对路径，然后到 WebUI「系统 → 风扇控制」启用持续采样并保存温度曲线。软件包附带 `/etc/at-webserver/fan-control.example.sh`，适用于 `pwmchip0/pwm0`、周期 10000、占空比 500 为满速且 3000 为最低速的硬件；其他设备请复制后按实际 PWM 接线与极性修改。
+
+服务调用 `/bin/sh <脚本路径> <转速百分比> <温度°C>`，同时提供 `FAN_PERCENT` 与 `FAN_TEMP_C` 环境变量。脚本只负责调速，不应直接访问 AT 串口。温度采样失败时服务调用脚本请求 100% 转速；执行超时为 3 秒。未配置脚本时仍可启用持续监测，首页的温度自动刷新会锁定为采样间隔，并读取服务端共享的采样结果。曲线要求温度严格递增、转速不下降，节点之间线性插值。
 
 > 旧版（1.x，Python 版）网盘存档：https://www.123865.com/s/BwcjVv-PexFd?pwd=GweY 提取码 `GweY`
 

@@ -77,12 +77,22 @@ type ScheduleConfig struct {
 	DayNR      BandLock
 }
 
+// FanConfig controls the optional temperature sampler and local shell hook.
+// Script is deliberately read only from UCI, never from a WebSocket command.
+type FanConfig struct {
+	Enabled  bool
+	Interval time.Duration
+	Script   string
+	Curve    []FanPoint
+}
+
 type Config struct {
 	Enabled      bool
 	AT           ATConfig
 	Notification NotificationConfig
 	WebSocket    WebSocketConfig
 	Schedule     ScheduleConfig
+	Fan          FanConfig
 }
 
 func defaultConfig() Config {
@@ -99,6 +109,7 @@ func defaultConfig() Config {
 			Types: NotifyTypes{SMS: true, Call: true, MemoryFull: true, Signal: true},
 		},
 		WebSocket: WebSocketConfig{Port: 8765, ScanTimeout: defaultScanTimeout},
+		Fan:       FanConfig{Interval: 5 * time.Second, Curve: defaultFanCurve()},
 		Schedule: ScheduleConfig{
 			CheckInterval:  60 * time.Second,
 			NoServiceLimit: 180 * time.Second,
@@ -255,6 +266,15 @@ func LoadConfig(ctx context.Context) (Config, error) {
 	s.DayEnabled = u.bool("schedule_day_enabled", true)
 	s.DayLTE = u.bandLock("schedule_day_lte")
 	s.DayNR = u.bandLock("schedule_day_nr")
+
+	cfg.Fan.Enabled = u.bool("fan_enabled", false)
+	cfg.Fan.Interval = u.seconds("fan_interval", 5*time.Second, 2*time.Second)
+	cfg.Fan.Script = u.str("fan_script", "")
+	if raw := u.str("fan_curve", ""); raw != "" {
+		if curve, err := parseFanCurve(raw); err == nil {
+			cfg.Fan.Curve = curve
+		}
+	}
 
 	return cfg, nil
 }

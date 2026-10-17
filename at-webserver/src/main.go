@@ -58,7 +58,9 @@ func run(log *Logger, verbose bool) error {
 	notifier := NewNotifier(cfg.Notification, log)
 	dispatcher := NewDispatcher(client, notifier, ws, log)
 	scheduler := NewScheduler(cfg.Schedule, client, notifier, log)
+	fan := NewFanController(cfg.Fan, client, log)
 	ws.AttachScheduler(scheduler)
+	ws.AttachFan(fan)
 	ws.SetScanTimeout(cfg.WebSocket.ScanTimeout)
 
 	// 先同步绑定端口：端口被占用属于启动失败，应当立刻报错而不是异步才发现。
@@ -82,6 +84,7 @@ func run(log *Logger, verbose bool) error {
 	spawn("通知", notifier.Run)
 	spawn("上报处理", dispatcher.Run)
 	spawn("定时锁频", scheduler.Run)
+	spawn("风扇温度监测", fan.Run)
 
 	serveErr := make(chan error, 1)
 	wg.Add(1)
@@ -131,6 +134,7 @@ func logConfig(log *Logger, cfg Config) {
 		cfg.Notification.Types.SMS, cfg.Notification.Types.Call,
 		cfg.Notification.Types.MemoryFull, cfg.Notification.Types.Signal)
 	log.Infof("定时锁频: %s", enabledText(cfg.Schedule.Enabled))
+	log.Infof("风扇温度监测: %s，脚本: %s", enabledText(cfg.Fan.Enabled), presence(cfg.Fan.Script != ""))
 }
 
 func presence(set bool) string {

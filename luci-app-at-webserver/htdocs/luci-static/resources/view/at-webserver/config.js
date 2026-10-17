@@ -243,6 +243,17 @@ return view.extend({
 		};
 		o.rawhtml = true;
 
+		o = s.option(form.DummyValue, '_fan_title', _('风扇 Shell 钩子'));
+		o.rawhtml = true;
+		o.cfgvalue = function() {
+			return '<h3>' + _('温度曲线在 Web 管理界面的「系统 → 风扇控制」中设置') + '</h3>';
+		};
+
+		o = s.option(form.Value, 'fan_script', _('调速脚本路径'),
+			_('路由器本机 Shell 脚本的绝对路径。服务调用 /bin/sh 脚本路径 百分比 温度°C；脚本不得再直接访问模块串口。留空则只监测温度。'));
+		o.placeholder = '/etc/at-webserver/fan-control.sh';
+		o.rmempty = true;
+
 		// 通知配置标题（使用 DummyValue 作为分隔）
 		o = s.option(form.DummyValue, '_notify_title', _('通知配置'));
 		o.rawhtml = true;

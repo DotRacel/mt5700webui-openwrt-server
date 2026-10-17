@@ -47,6 +47,8 @@ define Package/at-webserver/install
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/etc/config/at-webserver $(1)/etc/config/
+	$(INSTALL_DIR) $(1)/etc/at-webserver
+	$(INSTALL_BIN) ./files/etc/at-webserver/fan-control.example.sh $(1)/etc/at-webserver/
 
 	$(INSTALL_DIR) $(1)/www/5700
 	$(CP) -r ./files/www/5700/* $(1)/www/5700/

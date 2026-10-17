@@ -178,6 +178,8 @@ func (m *fakeModem) reply(cmd string) string {
 		return "\r\n+CSQ: 20,99\r\n\r\nOK\r\n"
 	case cmd == "AT^HCSQ?":
 		return "\r\n^HCSQ: \"LTE\",55,30,20\r\n\r\nOK\r\n"
+	case cmd == "AT^CHIPTEMP?":
+		return "\r\n^CHIPTEMP: 432,445,451,398,401,407,428,431,439,442,419,423\r\n\r\nOK\r\n"
 	case strings.HasPrefix(cmd, "AT+CMGR="):
 		return "\r\n+CMGR: 0,,24\r\n" + ucs2PDU + "\r\n\r\nOK\r\n"
 	case cmd == "AT+BADCMD":

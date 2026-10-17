@@ -42,6 +42,7 @@ type WSServer struct {
 	log     *Logger
 	authKey string
 	sched   *Scheduler
+	fan     *FanController
 
 	scan        cellScanState
 	scanTimeout time.Duration
@@ -63,6 +64,8 @@ func NewWSServer(client *ATClient, authKey string, log *Logger) *WSServer {
 func (s *WSServer) AttachScheduler(sched *Scheduler) {
 	s.sched = sched
 }
+
+func (s *WSServer) AttachFan(fan *FanController) { s.fan = fan }
 
 // SetScanTimeout 设置一次 ^CELLSCAN 允许跑多久。
 func (s *WSServer) SetScanTimeout(d time.Duration) {
@@ -327,6 +330,9 @@ func (s *WSServer) runCommand(command string) atCommandResponse {
 
 	// AT+SCHED? / AT+SCHED= 同样不是真命令，用来读写定时锁频配置。
 	if resp := s.handleScheduleCommand(command); resp != nil {
+		return *resp
+	}
+	if resp := s.handleFanCommand(command); resp != nil {
 		return *resp
 	}
 

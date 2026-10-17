@@ -48,6 +48,7 @@ legacy_redirect network/dial /network/dial
 legacy_redirect system /system/info
 legacy_redirect system/info /system/info
 legacy_redirect system/upgrade /system/upgrade
+legacy_redirect system/fan /system/fan
 legacy_redirect sms /sms/center
 legacy_redirect sms/center /sms/center
 legacy_redirect sms/settings /sms/settings

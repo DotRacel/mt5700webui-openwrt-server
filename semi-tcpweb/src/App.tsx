@@ -8,6 +8,7 @@ import NetworkSettings from '@/pages/network/Settings';
 import NetworkDial from '@/pages/network/Dial';
 import SystemInfo from '@/pages/system/Info';
 import SystemUpgrade from '@/pages/system/Upgrade';
+import FanPage from '@/pages/system/Fan';
 import SMSCenter from '@/pages/sms/Center';
 import SMSSettings from '@/pages/sms/Settings';
 import ATTerminal from '@/pages/at/Terminal';
@@ -24,6 +25,7 @@ const App: React.FC = () => {
             <Route path="/network/dial" element={<NetworkDial />} />
             <Route path="/system/info" element={<SystemInfo />} />
             <Route path="/system/upgrade" element={<SystemUpgrade />} />
+            <Route path="/system/fan" element={<FanPage />} />
             <Route path="/sms/center" element={<SMSCenter />} />
             <Route path="/sms/settings" element={<SMSSettings />} />
             <Route path="/at" element={<ATTerminal />} />

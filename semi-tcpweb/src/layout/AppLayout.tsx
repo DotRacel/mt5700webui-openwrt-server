@@ -37,6 +37,7 @@ const NAV_ITEMS = [
     items: [
       { itemKey: '/system/info', text: '模组设置' },
       { itemKey: '/system/upgrade', text: '模组升级' },
+      { itemKey: '/system/fan', text: '风扇控制' },
     ],
   },
   {
@@ -61,6 +62,7 @@ const PAGE_META: Record<string, { group: string; title: string }> = {
   '/network/dial': { group: '网络设置', title: '拨号设置' },
   '/system/info': { group: '系统', title: '模组设置' },
   '/system/upgrade': { group: '系统', title: '模组升级' },
+  '/system/fan': { group: '系统', title: '风扇控制' },
   '/sms/center': { group: '短信中心', title: '信息' },
   '/sms/settings': { group: '短信中心', title: '设置' },
   '/at': { group: '调试工具', title: 'AT 调试终端' },
